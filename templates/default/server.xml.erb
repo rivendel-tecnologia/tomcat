@@ -43,14 +43,70 @@
        Documentation at /docs/jndi-resources-howto.html
   -->
   <GlobalNamingResources>
-    <!-- Editable user database that can also be used by
-         UserDatabaseRealm to authenticate users
-    -->
+
     <Resource name="UserDatabase" auth="Container"
               type="org.apache.catalina.UserDatabase"
               description="User database that can be updated and saved"
               factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
-              pathname="conf/tomcat-users.xml" />
+              pathname="conf/tomcat-users.xml"
+    />
+
+    <Resource name="global/api-manager-ds" auth="Container" type="javax.sql.DataSource"
+              maxActive="100" maxIdle="30" maxWait="10000"
+              username="<%= node['api']['mysql']['user'] %>" password="<%= node['api']['mysql']['password'] %>" driverClassName="com.mysql.jdbc.Driver"
+              url="jdbc:mysql://<%= node['api']['mysql']['url'] %>:3306/<%= node['api']['mysql']['db'] %>"
+              factory="org.apache.commons.dbcp.BasicDataSourceFactory"
+    />
+
+    <!--TODO: Parametrizar configs de email-->
+    <Resource   name="global/mail/Session" auth="Container"
+          type="javax.mail.Session"
+          mail.transport.protocol="smtp"
+          mail.smtp.user="<%= node['mail']['smtp']['user'] %>"
+          password="<%= node['mail']['smtp']['password'] %>"
+          mail.smtp.host="<%= node['mail']['smtp']['host'] %>"
+          mail.smtp.auth="true"
+          mail.smtp.port="<%= node['mail']['smtp']['port'] %>"
+          mail.smtp.starttls.enable="false"
+          mail.smtp.socketFactory.class="javax.net.ssl.SSLSocketFactory"
+    />
+
+    <Resource auth="Container"
+            name="global/jms/ConnectionFactory"
+            type="org.apache.activemq.ActiveMQConnectionFactory"
+            factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+            brokerURL="tcp://<%= node['api']['solr']['url'] %>:61616"
+            brokerName="MyActiveMQBroker"
+    />
+
+    <Resource auth="Container"
+            name="global/jms/ApiCallsQueue"
+            type="org.apache.activemq.command.ActiveMQQueue"
+            factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+            physicalName="ApiCallsQueue"
+    />
+
+    <Resource auth="Container"
+            name="global/jms/ApiIncidentsQueue"
+            type="org.apache.activemq.command.ActiveMQQueue"
+            factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+            physicalName="ApiIncidentsQueue"
+    />
+
+    <Resource auth="Container"
+            name="global/jms/AnalyticsHeartbeatTopic"
+            type="org.apache.activemq.command.ActiveMQTopic"
+            factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+            physicalName="AnalyticsHeartbeatTopic"
+    />
+
+    <Resource auth="Container"
+            name="global/jms/ApiCallBatchQueue"
+            type="org.apache.activemq.command.ActiveMQTopic"
+            factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+            physicalName="AnalyticsHeartbeatTopic"
+    />
+
   </GlobalNamingResources>
 
   <!-- A "Service" is a collection of one or more "Connectors" that share
