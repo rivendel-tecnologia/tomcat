@@ -176,6 +176,17 @@ action :configure do
     notifies :restart, "service[#{instance}]"
   end
 
+  template "#{new_resource.config_dir}/context.xml" do
+    source 'context.xml.erb'
+      variables ({
+        :client => new_resource.client,
+      })
+    owner 'root'
+    group 'root'
+    mode '0644'
+    notifies :restart, "service[#{instance}]"
+  end
+
   template "#{new_resource.config_dir}/logging.properties" do
     source 'logging.properties.erb'
     owner 'root'
